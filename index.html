@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#3b9bff">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/zepto.js"></script>
+    <script src="js/cash_slider.js"></script>
+</head>
+
+<body>
+    <div class="header">
+        <a href="" class="g-back"></a>
+        <h1>借款页面</h1>
+    </div>
+    <div class="contain" id="main">
+        <form id="cashsub" action="" method="post">
+            <div class="cash-amount">
+                <div class="reason clear">
+                    <span class="tt">xx先生，您要借</span>
+
+                </div>
+
+                <div class="input-box">
+                    <span class="fn-rmb">¥</span>
+                    <input type="number" value="3000" name="cash_amount" data-name="金额" data-type="number" maxlength="4" data-required="" data-on-blur="false" data-error="金额格式错误" class="js-g-module-form-el">
+                </div>
+
+                <div class="amount-bar" id="amount_bar">
+                    <ul class="du js-scale"></ul>
+                    <div class="spot-l"></div>
+                    <div class="spot-r"></div>
+                    <span class="min-value">
+                    <i class="fn-rmb">¥</i>
+                    <span class="js-min-value">100</span>
+                    </span>
+                    <span class="max-value">
+                    <i class="fn-rmb">¥</i>
+                    <span class="js-max-value">3000</span>
+                    </span>
+                    <div class="slider-box">
+                        <!--滑块位置控制属性 left: 0% ~ 100% -->
+                        <div class="slider js-slider" style="left: 0%;">
+                            <div class="slider-head">
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-select">
+                <div class="form-left">借款期限</div>
+                <div class="fx1">
+                    <div class="select-diy">
+                        <div class="select-diy-text" id="seleText">3个月<i></i></div>
+                        <select id="sele">
+                            <option value="3">3个月</option>
+                            <option value="6">6个月</option>
+                            <option value="12">12个月</option>
+                            <option value="24">24个月</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-sub">
+                <div class="agree">同意<a href="">授权协议</a></div>
+                <a href="javascript:void(0);" class="btn" id="next_btn">确认借钱</a>
+                <div class="record clear">
+                </div>
+            </div>
+        </form>
+        <div class="advantage">
+            <h2>四大优势</h2>
+            <ul class="db clear">
+                <li class="fx1">
+                    <img src="img/advantage_01.png" data-img="img/tql_advantage_01.png">
+                    <p>多家贷款商</p>
+                    <p>更多选择</p>
+                </li>
+                <li class="fx1">
+                    <img src="img/advantage_02.png" data-img="img/tql_advantage_02.png">
+                    <p>智能推荐</p>
+                    <p>更易通过</p>
+                </li>
+                <li class="fx1">
+                    <img src="img/advantage_03.png" data-img="img/tql_advantage_03.png">
+                    <p>5分钟审批</p>
+                    <p>实时放款</p>
+                </li>
+                <li class="fx1">
+                    <img src="img/advantage_04.png" data-img="img/tql_advantage_04.png">
+                    <p>最高10万</p>
+                    <p>灵活额度</p>
+                </li>
+            </ul>
+        </div>
+        <div class="mask-fadeinright" id="" style="display:none;">
+            <div class="mask"></div>
+            <div class="f-ov">
+                <div class="ui-common-loading db" id="fql_lading">
+                    <img width="33" height="33" src="img/loading.gif">
+                    <span class="ui-loading-txt">正在智能推荐贷款商</span>
+                </div>
+            </div>
+        </div>
+        <div class="mask-fadeinright" id="" style="display:none;">
+            <div class="mask"></div>
+            <div class="f-ov">
+                <div class="ui-common-loading2">
+                    <img width="120" height="120" src="img/no_one.png">
+                    <p class="load-title">抱歉</p>
+                    <p class="load-text">没有找到能给您借款的贷款商过些时候再来试试吧</p>
+                </div>
+            </div>
+        </div>
+        <div id="toast" style="display: none;">
+            <div class="tips-ui-box">
+                <div class="tips-ui-text">借款金额不能低于100</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var SELE_VAL = '3';
+        $('#sele').change(function () {
+            SELE_VAL = $(this).val();
+            console.log(SELE_VAL);
+            $('#seleText').html(SELE_VAL + '个月<i></i>');
+        })
+
+
+
+        var G_CASH_AMOUNT = $('input[name="cash_amount"]'); //输入金额框
+        var G_HIDE_CLS = 'hide';
+        var G_NEXT_BTN = $('#next_btn'); //确认借钱按钮
+        var G_BTN_DISABLED_CLS = 'btn-disable'; //按钮不通过的样式
+        var G_CREDIT_MIN_LIMIT = 100; //标尺左侧最小值
+        var G_CREDIT_MAX_LIMIT = 200000;//标尺右侧最大值
+        var G_CASH_SLIDER = null;
+        var G_DEFAULT_AMOUNT = null;
+
+
+
+        G_NEXT_BTN.on('click', function () {
+            if (G_CASH_AMOUNT.val() < G_CREDIT_MIN_LIMIT) {
+                $('.tips-ui-text').html('借款金额不能低于100');
+                $('#toast').show();
+                setTimeout(function () {
+                    $('#toast').hide();
+                }, 2000);
+            } else {
+                
+                $('#main').addClass('tql');
+                var ADV_IMG=$('.db>li').find("img"),
+                    IMG,
+                    IMG_DATA;
+                
+                for(var i=0;i<ADV_IMG.length;i++){
+                    IMG=$(ADV_IMG[i]);
+                    IMG_DATA=IMG.attr('data-img');
+                    IMG.attr('src',IMG_DATA);
+
+                }
+            }
+        })
+
+
+
+        setAmountRule();
+        //设置取现金额限制
+        function setAmountRule() {
+            var amount_bar = $('#amount_bar'), //标尺
+                G_IS_CREDIT_LIMIT = false;
+            G_CASH_AMOUNT.prop('readonly', false);
+
+            if (G_CREDIT_MAX_LIMIT > 100) {
+                amount_bar.removeClass(G_HIDE_CLS);
+                if (!G_CASH_SLIDER) {
+                    G_CASH_SLIDER = new CashSlider({
+                        slider_wrap: amount_bar, //标尺
+                        input_ele: G_CASH_AMOUNT, //输入金额框
+                        max_amount: G_CREDIT_MAX_LIMIT, //标尺右侧最大值
+                        min_amount: G_CREDIT_MIN_LIMIT //标尺左侧最小值
+                            /*default_amount: G_DEFAULT_AMOUNT*/
+                    });
+                    G_CASH_SLIDER.init();
+                } else {
+                    G_CASH_SLIDER.reload({
+                        max_amount: G_CREDIT_MAX_LIMIT,
+                        min_amount: G_CREDIT_MIN_LIMIT
+                    });
+                }
+
+            } else {
+                G_CASH_AMOUNT.val(G_CREDIT_MAX_LIMIT).prop('readonly', true);
+                disableNextBtn();
+            }
+        }
+        
+    </script>
+</body>
+
+</html>
